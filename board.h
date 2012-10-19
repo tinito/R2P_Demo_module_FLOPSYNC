@@ -61,8 +61,8 @@
 
 #define SERIAL_DRIVER           SD1
 #define CAN_DRIVER              CAND1
-#define PWM_DRIVER              PWMDx
-#define ICU_DRIVER              ICUDx
+#define PWM_DRIVER              PWMD3
+#define ICU_DRIVER              ICUD4
 
 /*
  * I/O ports initial setup, this configuration is established soon after reset
@@ -97,12 +97,9 @@
  * PA3  - Push Pull output (LED4).
  * PA4  - Push Pull output (test signal).
  * PA5  - Push Pull output (test signal).
- * PA6  - Push Pull output (test signal).
- * PA7  - Push Pull output (test signal).
+ * PA6  - Alternate output (PWM3 CH1).
  * PA9  - Alternate output (USART2 TX).
  * PA10 - Normal input     (USART2 RX).
- * PA11 - XXX              (USB DM).
- * PA12 - XXX              (USB DP).
 */
 #define VAL_GPIOACRL            0x3B333333      /*  PA7...PA0 */
 #define VAL_GPIOACRH            0x888884B8      /* PA15...PA8 */
@@ -111,12 +108,13 @@
 /*
  * Port B setup.
  * Everything input with pull-up except:
- * PB0  - Normal input (BUTTON2).
- * PB1  - Normal input (BUTTON1).
+ * PB0  - Normal input with pull-up (BUTTON2).
+ * PB1  - Normal input with pull-up (BUTTON1).
+ * PB1  - Normal input (ICU4 CH1).
  * PB8  - Normal input (CAN1 RX).
  * PB9  - Alternate output (CAN1 TX).
  */
-#define VAL_GPIOBCRL            0x88888888      /*  PB7...PB0 */
+#define VAL_GPIOBCRL            0x88888848      /*  PB7...PB0 */
 #define VAL_GPIOBCRH            0x888888B4      /* PB15...PB8 */
 #define VAL_GPIOBODR            0xFFFFFFFF
 
