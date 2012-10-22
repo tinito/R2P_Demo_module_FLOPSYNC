@@ -90,6 +90,10 @@ ifeq ($(TEST),blinking_led)
   CSRC += main_blinking_led.c
 endif
        
+ifeq ($(TEST),hardware_test)
+  CSRC += main_hardware_test.c
+endif
+
 ifeq ($(TEST),flopsync_test)
   CSRC += main_flopsync_test.c
 endif

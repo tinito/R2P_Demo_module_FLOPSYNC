@@ -29,6 +29,8 @@
 
 uint32_t timer_cnt = 0;
 uint32_t last_width = 0;
+uint32_t min_width = 0xFFFF;
+uint32_t max_width = 0;
 
 /*===========================================================================*/
 /* Local functions.                                                          */
@@ -38,7 +40,7 @@ inline unsigned long tick_now(void) {
   return (timer_cnt * (&PWM_DRIVER)->config->period) + (&PWM_DRIVER)->tim->CNT;
 }
 
-inline unsigned long time_now(void) {
+inline uint32_t time_now(void) {
   return (tick_now() / (&PWM_DRIVER)->config->period);
 }
 
@@ -127,12 +129,38 @@ static void cmd_can_tx(BaseSequentialStream *chp, int argc, char *argv[]) {
 	canTransmitTimeout(&CAND1, &ctf, TIME_IMMEDIATE);
 }
 
+static void cmd_flopsync_test(BaseSequentialStream *chp, int argc, char *argv[]) {
+	CANTxFrame ctf;
+	uint32_t cnt;
+
+	if (argc != 1) {
+		chprintf(chp, "Usage: test <cnt>\r\n");
+		return;
+	}
+
+	cnt = atoi(argv[0]);
+
+	ctf.DLC = 0;
+	ctf.RTR = CAN_RTR_DATA;
+	ctf.IDE = CAN_IDE_EXT;
+	ctf.EID = 123;
+
+	while (cnt--) {
+		test_start();
+		canTransmitTimeout(&CAND1, &ctf, TIME_IMMEDIATE);
+		chThdSleepMilliseconds(10);
+	}
+
+	chprintf(chp, "\r\nTest ended\r\n");
+}
+
 static const ShellCommand commands[] =
   {
     {"mem", cmd_mem},
      {"threads", cmd_threads},
      {"pwm", cmd_pwm},
      {"tx", cmd_can_tx},
+     {"test", cmd_flopsync_test},
      {NULL, NULL}};
 
 static const ShellConfig shell_cfg1 =
@@ -194,6 +222,12 @@ static PWMConfig pwmcfg = {
 static void icuwidthcb(ICUDriver *icup) {
 
   last_width = icuGetWidth(icup);
+
+  if (last_width < min_width)
+	  min_width = last_width;
+
+  if (last_width > max_width)
+	  max_width = last_width;
 
   test_clear();
 }
@@ -276,11 +310,7 @@ static msg_t CanRxThread(void *arg) {
 
 	while (!chThdShouldTerminate()) {
 		canReceive(&CAN_DRIVER, &crf);
-		chprintf((BaseSequentialStream *) &SERIAL_DRIVER,
-				"\r\nID: %d DLC: %d\r\nDATA: %x %x %x %x %x %x %x %x\r\n",
-				crf.EID, crf.DLC, crf.data8[0], crf.data8[1], crf.data8[2],
-				crf.data8[3], crf.data8[4], crf.data8[5], crf.data8[6],
-				crf.data8[7]);
+		test_clear();
 	}
 
 	return 0;
@@ -355,10 +385,7 @@ int main(void) {
       shelltp = NULL;
     }
 
-    chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "tick: %U ms: %U W: %d\r\n", tick_now(), time_now(), last_width);
-
-    if(!palReadPad(TEST_GPIO, TESTIN))
-    	test_clear();
+    chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "tick: %U ms: %u LAST: %u MIN: %u MAX: %u\r\n", tick_now(), time_now(), last_width, min_width, max_width);
 
     chThdSleepMilliseconds(500);
   }

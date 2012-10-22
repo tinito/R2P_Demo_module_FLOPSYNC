@@ -56,8 +56,9 @@
 #define BUTTON2                 0
 
 #define TEST_GPIO               GPIOA
-#define TEST1                   4
-#define TEST2                   5
+#define TESTOUT                 4
+#define TESTIN                  5
+#define TESTOD                  6
 
 #define SERIAL_DRIVER           SD1
 #define CAN_DRIVER              CAND1
@@ -96,12 +97,13 @@
  * PA2  - Push Pull output (LED3).
  * PA3  - Push Pull output (LED4).
  * PA4  - Push Pull output (test signal).
- * PA5  - Push Pull output (test signal).
- * PA6  - Alternate output (PWM3 CH1).
+ * PA5  - Normal Input (test signal).
+ * PA6  - Open Drain output (test signal).
+ * PA7  - Alternate output (PWM3 CH2).
  * PA9  - Alternate output (USART2 TX).
  * PA10 - Normal input     (USART2 RX).
 */
-#define VAL_GPIOACRL            0x3B333333      /*  PA7...PA0 */
+#define VAL_GPIOACRL            0xB7433333      /*  PA7...PA0 */
 #define VAL_GPIOACRH            0x888884B8      /* PA15...PA8 */
 #define VAL_GPIOAODR            0xFFFFFFFF
 
